@@ -32,16 +32,16 @@ const properties = [
 
 // Dados das ferrovias
 const railroads = [
-    { id: 'railroad-1', name: 'Companhia Ferroviária Sul', price: 200, position: 5 },
-    { id: 'railroad-2', name: 'Companhia Ferroviária Oeste', price: 200, position: 15 },
-    { id: 'railroad-3', name: 'Companhia Ferroviária Norte', price: 200, position: 25 },
-    { id: 'railroad-4', name: 'Companhia Ferroviária Leste', price: 200, position: 35 }
+    { id: 'railroad-1', name: 'OMC', price: 200000, position: 2 },
+    { id: 'railroad-2', name: 'ONU', price: 200000, position: 14 },
+    { id: 'railroad-3', name: 'OIT', price: 200000, position: 22 },
+    { id: 'railroad-4', name: 'OTAN', price: 200000, position: 36 }
 ];
 
 // Dados das companhias de serviços
 const utilities = [
-    { id: 'electric-company', name: 'Companhia Elétrica', price: 150, position: 12 },
-    { id: 'water-works', name: 'Companhia de Água', price: 150, position: 28 }
+    { id: 'utilitie-1', name: 'IPCC', price: 150000, position: 7 },
+    { id: 'utilitie-2', name: 'OMS', price: 150000, position: 29 }
 ];
 
 // Cartas de Sorte e Cofre
