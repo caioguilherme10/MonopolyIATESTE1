@@ -6,18 +6,18 @@ const GO_TO_JAIL_POSITION = 30;
 
 // Dados das propriedades
 const properties = [
-    { id: 'property-1', name: 'Abu Dhabi EMIRADOS ÁRABES', price: 300000, rent: [6, 30, 90, 270, 400, 550], houseCost: 50, group: 'brown', position: 1 },
-    { id: 'property-2', name: 'Riade ARÁBIA SAUDITA', price: 300000, rent: [8, 40, 100, 300, 450, 600], houseCost: 50, group: 'brown', position: 3 },
+    { id: 'property-1', name: 'Abu Dhabi EMIRADOS ÁRABES', price: 300000, rent: [6, 30, 90, 270, 400, 550], houseCost: 50, group: 'brown', position: 9 },
+    { id: 'property-2', name: 'Riade ARÁBIA SAUDITA', price: 300000, rent: [8, 40, 100, 300, 450, 600], houseCost: 50, group: 'brown', position: 7 },
     { id: 'property-3', name: 'Doha CATAR', price: 320000, rent: [10, 50, 150, 450, 625, 750], houseCost: 100, group: 'brown', position: 5 },
-    { id: 'property-4', name: 'Cidade do Cabo AFRICA DO SUL', price: 60000, rent: [12, 60, 180, 500, 700, 900], houseCost: 100, group: 'light-blue', position: 6 },
-    { id: 'property-5', name: 'Luanda ANGOLA', price: 75000, rent: [14, 70, 200, 550, 750, 950], houseCost: 100, group: 'light-blue', position: 8 },
-    { id: 'property-6', name: 'Cairo EGITO', price: 100000, rent: [16, 80, 220, 600, 800, 1000], houseCost: 150, group: 'light-blue', position: 9 },
-    { id: 'property-7', name: 'Cidade da Guatemala GUATEMALA', price: 100000, rent: [18, 90, 250, 700, 875, 1050], houseCost: 150, group: 'purple-dark', position: 11 },
-    { id: 'property-8', name: 'Wellington NOVA ZELÂNDIA', price: 350000, rent: [18, 90, 250, 700, 875, 1050], houseCost: 150, group: 'purple', position: 12 },
-    { id: 'property-9', name: 'Camberra AUSTRÁLIA', price: 400000, rent: [20, 100, 300, 750, 925, 1100], houseCost: 150, group: 'purple', position: 13 },
+    { id: 'property-4', name: 'Cidade do Cabo AFRICA DO SUL', price: 60000, rent: [12, 60, 180, 500, 700, 900], houseCost: 100, group: 'light-blue', position: 4 },
+    { id: 'property-5', name: 'Luanda ANGOLA', price: 75000, rent: [14, 70, 200, 550, 750, 950], houseCost: 100, group: 'light-blue', position: 2 },
+    { id: 'property-6', name: 'Cairo EGITO', price: 100000, rent: [16, 80, 220, 600, 800, 1000], houseCost: 150, group: 'light-blue', position: 1 },
+    { id: 'property-7', name: 'Cidade da Guatemala GUATEMALA', price: 100000, rent: [18, 90, 250, 700, 875, 1050], houseCost: 150, group: 'purple-dark', position: 19 },
+    { id: 'property-8', name: 'Wellington NOVA ZELÂNDIA', price: 350000, rent: [18, 90, 250, 700, 875, 1050], houseCost: 150, group: 'purple', position: 18 },
+    { id: 'property-9', name: 'Camberra AUSTRÁLIA', price: 400000, rent: [20, 100, 300, 750, 925, 1100], houseCost: 150, group: 'purple', position: 17 },
     { id: 'property-10', name: 'Buenos Aires ARGENTINA', price: 180000, rent: [22, 110, 330, 800, 975, 1150], houseCost: 150, group: 'orange', position: 15 },
-    { id: 'property-11', name: 'Montevidéu URUGUAY', price: 180000, rent: [22, 110, 330, 800, 975, 1150], houseCost: 150, group: 'orange', position: 17 },
-    { id: 'property-12', name: 'Santiago CHILE', price: 200000, rent: [24, 120, 360, 850, 1025, 1200], houseCost: 200, group: 'orange', position: 18 },
+    { id: 'property-11', name: 'Montevidéu URUGUAY', price: 180000, rent: [22, 110, 330, 800, 975, 1150], houseCost: 150, group: 'orange', position: 13 },
+    { id: 'property-12', name: 'Santiago CHILE', price: 200000, rent: [24, 120, 360, 850, 1025, 1200], houseCost: 200, group: 'orange', position: 12 },
     { id: 'property-13', name: 'São José COSTA RICA', price: 120000, rent: [26, 130, 390, 900, 1100, 1275], houseCost: 200, group: 'purple-dark', position: 21 },
     { id: 'property-14', name: 'Paris FRANÇA', price: 220000, rent: [26, 130, 390, 900, 1100, 1275], houseCost: 200, group: 'red', position: 25 },
     { id: 'property-15', name: 'Berlin ALEMANHA', price: 220000, rent: [28, 150, 450, 1000, 1200, 1400], houseCost: 200, group: 'red', position: 26 },
@@ -32,15 +32,15 @@ const properties = [
 
 // Dados das ferrovias
 const railroads = [
-    { id: 'railroad-1', name: 'OMC', price: 200000, position: 2 },
-    { id: 'railroad-2', name: 'ONU', price: 200000, position: 14 },
+    { id: 'railroad-1', name: 'OMC', price: 200000, position: 8 },
+    { id: 'railroad-2', name: 'ONU', price: 200000, position: 16 },
     { id: 'railroad-3', name: 'OIT', price: 200000, position: 22 },
     { id: 'railroad-4', name: 'OTAN', price: 200000, position: 36 }
 ];
 
 // Dados das companhias de serviços
 const utilities = [
-    { id: 'utilitie-1', name: 'IPCC', price: 150000, position: 7 },
+    { id: 'utilitie-1', name: 'IPCC', price: 150000, position: 3 },
     { id: 'utilitie-2', name: 'OMS', price: 150000, position: 29 }
 ];
 
