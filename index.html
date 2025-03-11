@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monopoly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="board">
+            <!-- Cantos do tabuleiro -->
+            <div class="corner" id="go">Início</div>
+            <div class="corner" id="jail">Prisão</div>
+            <div class="corner" id="free-parking">Estacionamento</div>
+            <div class="corner" id="go-to-jail">Vá para a Prisão</div>
+            
+            <!-- Lado inferior (propriedades marrons e azuis claras) -->
+            <div class="bottom-row">
+                <div class="property" id="property-1"><div class="textoP"><p>Abu Dhabi</p><p>EMIRADOS ÁRABES</p></div><div class="moneyP">$300.000</div></div>
+                <div class="railroad" id="railroad-1">OMC $200.000</div>
+                <div class="property" id="property-2"><div class="textoP"><p>Riade</p><p>ARÁBIA SAUDITA</p></div><div class="moneyP">$300.000</div></div>
+                <div class="card" id="chance-1">SORTE OU REVES</div>
+                <div class="property" id="property-3"><div class="textoP"><p>Doha</p><p>CATAR</p></div><div class="moneyP">$320.000</div></div>
+                <div class="property" id="property-4"><div class="textoP"><p>Cidade do Cabo</p><p>AFRICA DO SUL</p></div><div class="moneyP">$60.000</div></div>
+                <div class="railroad" id="railroad-2">IPCC $150.000</div>
+                <div class="property" id="property-5"><div class="textoP"><p>Luanda</p><p>ANGOLA</p></div><div class="moneyP">$75.000</div></div>
+                <div class="property" id="property-6"><div class="textoP"><p>Cairo</p><p>EGITO</p></div><div class="moneyP">$100.000</div></div>
+            </div>
+            
+            <!-- Lado esquerdo (propriedades roxas e laranjas) -->
+            <div class="left-row">
+                <div class="property" id="property-7">Cidade da Guatemala GUATEMALA $100.000</div>
+                <div class="property" id="property-8">Wellington NOVA ZELÂNDIA $350.000</div>
+                <div class="property" id="property-9">Camberra AUSTRÁLIA $400.000</div>
+                <div class="railroad" id="railroad-3">ONU $200.000</div>
+                <div class="property" id="property-10">Buenos Aires ARGENTINA $180.000</div>
+                <div class="tax" id="luxury-tax">Taxa de Luxo</div>
+                <div class="property" id="property-11">Montevidéu URUGUAY $180.000</div>
+                <div class="property" id="property-12">Santiago CHILE $200.000</div>
+                <div class="card" id="chance-2">SORTE OU REVES</div>
+            </div>
+            
+            <!-- Lado superior (propriedades vermelhas e amarelas) -->
+            <div class="top-row">
+                <div class="property" id="property-13">São José COSTA RICA $120.000</div>
+                <div class="railroad" id="railroad-4">OIT $200.000</div>
+                <div class="tax" id="luxury-tax">Taxa de Luxo</div>
+                <div class="card" id="chance-3">SORTE OU REVES</div>
+                <div class="property" id="property-14">Paris FRANÇA $220.000</div>
+                <div class="property" id="property-15">Berlin ALEMANHA $220.000</div>
+                <div class="card" id="chance-4">SORTE OU REVES</div>
+                <div class="property" id="property-16">Londres INGLATERRA $240.000</div>
+                <div class="railroad" id="railroad-5">OMS $150.000</div>
+            </div>
+            
+            <!-- Lado direito (propriedades verdes e azuis escuras) -->
+            <div class="right-row">
+                <div class="property" id="property-17">Seul COREIA DO SUL $140.000</div>
+                <div class="card" id="chance-5">SORTE OU REVES</div>
+                <div class="property" id="property-18">Pequim CHINA $160.000</div>
+                <div class="property" id="property-19">Tóquio JAPÂO $140.000</div>
+                <div class="property" id="property-20">Cidade do México MÉXICO $280.000</div>
+                <div class="railroad" id="railroad-5">OTAN $200.000</div>
+                <div class="property" id="property-21">Ottawa CANADA $260.000</div>
+                <div class="card" id="chance-6">SORTE OU REVES</div>
+                <div class="property" id="property-22">Washington EUA $260.000</div>
+            </div>
+            
+            <!-- Centro do tabuleiro -->
+            <div class="center">
+                <div class="dice-container">
+                    <div class="dice" id="dice-1">1</div>
+                    <div class="dice" id="dice-2">1</div>
+                </div>
+                <button id="roll-dice">Jogar Dados</button>
+                <button id="end-turn">Finalizar Turno</button>
+            </div>
+        </div>
+        
+        <!-- Informações do jogo -->
+        <div class="game-info">
+            <div class="player-info">
+                <h2>Jogadores</h2>
+                <div id="players-list"></div>
+                <button id="add-player">Adicionar Jogador</button>
+                <button id="start-game">Iniciar Jogo</button>
+            </div>
+            
+            <div class="property-info">
+                <h2>Propriedade</h2>
+                <div id="current-property"></div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="buy-property" disabled>Comprar Propriedade</button>
+                <button id="build-house" disabled>Construir Casa</button>
+                <button id="mortgage" disabled>Hipotecar</button>
+                <button id="trade" disabled>Negociar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para negociações -->
+    <div id="trade-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Negociar</h2>
+            <div class="trade-container">
+                <div class="trade-player">
+                    <h3>Você oferece:</h3>
+                    <select id="player-properties"></select>
+                    <input type="number" id="player-money" placeholder="Dinheiro">
+                </div>
+                <div class="trade-opponent">
+                    <h3>Em troca de:</h3>
+                    <select id="opponent-select"></select>
+                    <select id="opponent-properties"></select>
+                    <input type="number" id="opponent-money" placeholder="Dinheiro">
+                </div>
+            </div>
+            <button id="propose-trade">Propor Negociação</button>
+        </div>
+    </div>
+    
+    <script src="animations.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
