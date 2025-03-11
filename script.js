@@ -1,6 +1,6 @@
 // Constantes do jogo
 const STARTING_MONEY = 2000000;
-const GO_MONEY = 200;
+const GO_MONEY = 200000; // Ajustado para manter consistência com os valores das propriedades
 const JAIL_POSITION = 10;
 const GO_TO_JAIL_POSITION = 30;
 
@@ -100,6 +100,14 @@ const playerColors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
 
 // Inicialização
 function init() {
+    // Verificar se os elementos do DOM existem antes de adicionar event listeners
+    if (!addPlayerButton || !startGameButton || !rollDiceButton || 
+        !endTurnButton || !buyPropertyButton || !buildHouseButton || 
+        !mortgageButton || !tradeButton) {
+        console.error('Elementos do DOM não encontrados');
+        return;
+    }
+    
     // Embaralhar as cartas
     shuffleArray(gameState.chanceCards);
     shuffleArray(gameState.communityChestCards);
@@ -119,6 +127,10 @@ function init() {
     // Desabilitar botões inicialmente
     rollDiceButton.disabled = true;
     endTurnButton.disabled = true;
+    buyPropertyButton.disabled = true;
+    buildHouseButton.disabled = true;
+    mortgageButton.disabled = true;
+    tradeButton.disabled = true;
 }
 
 // Função para embaralhar array
@@ -229,40 +241,52 @@ function updatePlayerPosition(player) {
     const playerIndex = gameState.players.indexOf(player);
     const piece = document.getElementById(`player-${playerIndex}-piece`);
     
+    if (!piece) {
+        console.error(`Peça do jogador ${playerIndex} não encontrada`);
+        return;
+    }
+    
     // Calcular posição no tabuleiro
-    let position;
-    const boardSize = 40; // Total de casas no tabuleiro
+    let position = {};
+    const boardSize = document.querySelector('.board').offsetWidth;
+    const squareSize = boardSize / 11; // 11 quadrados em cada lado
     
     // Determinar em qual lado do tabuleiro o jogador está
     if (player.position === 0) { // Início
-        position = { left: '650px', top: '650px' };
+        position = { left: `${boardSize - squareSize/2}px`, top: `${boardSize - squareSize/2}px` };
     } else if (player.position > 0 && player.position < 10) { // Lado inferior
-        const offset = (player.position - 0) * 60;
-        position = { left: `${650 - offset}px`, top: '650px' };
+        const offset = (player.position) * squareSize;
+        position = { left: `${boardSize - squareSize/2 - offset}px`, top: `${boardSize - squareSize/2}px` };
     } else if (player.position === 10) { // Prisão
-        position = { left: '50px', top: '650px' };
+        position = { left: `${squareSize/2}px`, top: `${boardSize - squareSize/2}px` };
     } else if (player.position > 10 && player.position < 20) { // Lado esquerdo
-        const offset = (player.position - 10) * 60;
-        position = { left: '50px', top: `${650 - offset}px` };
+        const offset = (player.position - 10) * squareSize;
+        position = { left: `${squareSize/2}px`, top: `${boardSize - squareSize/2 - offset}px` };
     } else if (player.position === 20) { // Estacionamento
-        position = { left: '50px', top: '50px' };
+        position = { left: `${squareSize/2}px`, top: `${squareSize/2}px` };
     } else if (player.position > 20 && player.position < 30) { // Lado superior
-        const offset = (player.position - 20) * 60;
-        position = { left: `${50 + offset}px`, top: '50px' };
+        const offset = (player.position - 20) * squareSize;
+        position = { left: `${squareSize/2 + offset}px`, top: `${squareSize/2}px` };
     } else if (player.position === 30) { // Vá para a prisão
-        position = { left: '650px', top: '50px' };
+        position = { left: `${boardSize - squareSize/2}px`, top: `${squareSize/2}px` };
     } else { // Lado direito
-        const offset = (player.position - 30) * 60;
-        position = { left: '650px', top: `${50 + offset}px` };
+        const offset = (player.position - 30) * squareSize;
+        position = { left: `${boardSize - squareSize/2}px`, top: `${squareSize/2 + offset}px` };
     }
     
     // Adicionar pequeno deslocamento para cada jogador para evitar sobreposição
     position.left = `${parseInt(position.left) + (playerIndex * 5)}px`;
     position.top = `${parseInt(position.top) + (playerIndex * 5)}px`;
     
-    // Aplicar posição
+    // Aplicar posição com animação
+    piece.classList.add('moving-piece');
     piece.style.left = position.left;
     piece.style.top = position.top;
+    
+    // Remover classe de animação após a transição
+    setTimeout(() => {
+        piece.classList.remove('moving-piece');
+    }, 500);
 }
 
 // Obter nome da posição no tabuleiro
@@ -531,14 +555,15 @@ function checkSquareAction(player) {
     }
     
     // Verificar se caiu em uma casa de Sorte ou Cofre
-    if ([2, 17, 33].includes(position)) { // Cofre
-        drawCommunityChestCard(player);
-    } else if ([7, 22, 36].includes(position)) { // Sorte
+    //if ([2, 17, 33].includes(position)) { // Cofre
+    //    drawCommunityChestCard(player);
+    //} else 
+    if ([6, 11, 24, 27, 32, 38].includes(position)) { // Sorte
         drawChanceCard(player);
     }
     
     // Verificar se caiu em um imposto
-    if (position === 4) { // Imposto de Renda
+    /*if (position === 4) { // Imposto de Renda
         const tax = 200;
         player.money -= tax;
         alert(`${player.name} pagou $${tax} de Imposto de Renda.`);
@@ -546,7 +571,7 @@ function checkSquareAction(player) {
         const tax = 100;
         player.money -= tax;
         alert(`${player.name} pagou $${tax} de Taxa de Luxo.`);
-    }
+    }*/
     
     // Verificar se caiu em uma propriedade
     const property = [...properties, ...railroads, ...utilities].find(p => p.position === position);
@@ -565,271 +590,105 @@ function checkSquareAction(player) {
 function payRent(player, owner, property) {
     let rent = 0;
     
-    // Calcular aluguel baseado no tipo de propriedade
-    if (properties.find(p => p.id === property.id)) {
-        // Propriedade normal
-        const prop = properties.find(p => p.id === property.id);
-        // Verificar se o proprietário possui todas as propriedades do grupo
-        const group = prop.group;
-        const groupProperties = properties.filter(p => p.group === group);
-        const ownsAllInGroup = groupProperties.every(p => owner.properties.includes(p.id));
-        
-        // Aluguel base (sem casas)
-        rent = prop.rent[0];
-        
-        // Dobrar aluguel se possuir todas do grupo e não tiver casas
-        if (ownsAllInGroup) {
-            rent *= 2;
-        }
-        
-        // Adicionar lógica para casas e hotéis aqui quando implementado
-    } else if (railroads.find(r => r.id === property.id)) {
-        // Ferrovia - aluguel baseado no número de ferrovias que o proprietário possui
-        const railroadCount = railroads.filter(r => owner.properties.includes(r.id)).length;
-        rent = 25 * Math.pow(2, railroadCount - 1); // 25, 50, 100, 200
-    } else if (utilities.find(u => u.id === property.id)) {
-        // Companhia de serviços - aluguel baseado nos dados e no número de companhias
-        const utilityCount = utilities.filter(u => owner.properties.includes(u.id)).length;
-        const diceValue = parseInt(dice1Element.textContent) + parseInt(dice2Element.textContent);
-        rent = utilityCount === 1 ? diceValue * 4 : diceValue * 10;
-    }
-    
-    // Verificar se o jogador tem dinheiro suficiente
-    if (player.money < rent) {
-        alert(`${player.name} não tem dinheiro suficiente para pagar o aluguel de $${rent}!`);
-        // Implementar lógica de falência aqui
-        // Por enquanto, apenas paga o que tem
-        owner.money += player.money;
-        player.money = 0;
-    } else {
-        player.money -= rent;
-        owner.money += rent;
-        alert(`${player.name} pagou $${rent} de aluguel para ${owner.name}.`);
-    }
-    
-    // Atualizar UI
-    updatePlayersList();
-}
-
-// Comprar propriedade
-function buyProperty() {
-    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    const property = [...properties, ...railroads, ...utilities].find(p => p.position === currentPlayer.position);
-    
-    if (!property) return;
-    
-    const owner = findPropertyOwner(property);
-    if (owner) {
-        alert('Esta propriedade já tem dono!');
-        return;
-    }
-    
-    if (currentPlayer.money < property.price) {
-        alert('Você não tem dinheiro suficiente para comprar esta propriedade!');
-        return;
-    }
-    
-    // Comprar a propriedade
-    currentPlayer.money -= property.price;
-    currentPlayer.properties.push(property.id);
-    
-    alert(`${currentPlayer.name} comprou ${property.name} por $${property.price}!`);
-    
-    // Atualizar UI
-    updatePlayersList();
-    updateCurrentPlayerInfo();
-}
-
-// Construir casa
-function buildHouse() {
-    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    const property = properties.find(p => p.position === currentPlayer.position);
-    
-    if (!property) return;
-    
-    // Verificar se o jogador é o dono
-    if (!currentPlayer.properties.includes(property.id)) {
-        alert('Você não é o dono desta propriedade!');
-        return;
-    }
-    
-    // Verificar se o jogador possui todas as propriedades do grupo
-    const group = property.group;
-    const groupProperties = properties.filter(p => p.group === group);
-    const ownsAllInGroup = groupProperties.every(p => currentPlayer.properties.includes(p.id));
-    
-    if (!ownsAllInGroup) {
-        alert('Você precisa possuir todas as propriedades do grupo para construir casas!');
-        return;
-    }
-    
-    // Verificar se o jogador tem dinheiro suficiente
-    if (currentPlayer.money < property.houseCost) {
-        alert('Você não tem dinheiro suficiente para construir uma casa!');
-        return;
-    }
-    
-    // Construir a casa (implementação simplificada)
-    currentPlayer.money -= property.houseCost;
-    alert(`${currentPlayer.name} construiu uma casa em ${property.name} por $${property.houseCost}!`);
-    
-    // Atualizar UI
-    updatePlayersList();
-    updateCurrentPlayerInfo();
-}
-
-// Hipotecar/Desipotecar propriedade
-function toggleMortgage() {
-    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    const property = [...properties, ...railroads, ...utilities].find(p => p.position === currentPlayer.position);
-    
-    if (!property) return;
-    
-    // Verificar se o jogador é o dono
-    if (!currentPlayer.properties.includes(property.id)) {
-        alert('Você não é o dono desta propriedade!');
-        return;
-    }
-    
-    // Implementação simplificada de hipoteca
-    const mortgageValue = Math.floor(property.price / 2);
-    
-    // Hipotecar
-    currentPlayer.money += mortgageValue;
-    alert(`${currentPlayer.name} hipotecou ${property.name} e recebeu $${mortgageValue}!`);
-    
-    // Atualizar UI
-    updatePlayersList();
-    updateCurrentPlayerInfo();
-}
-
-// Abrir modal de negociação
-function openTradeModal() {
-    if (!gameState.gameStarted) return;
-    
-    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    const playerPropertiesSelect = document.getElementById('player-properties');
-    const opponentSelect = document.getElementById('opponent-select');
-    const opponentPropertiesSelect = document.getElementById('opponent-properties');
-    
-    // Limpar selects
-    playerPropertiesSelect.innerHTML = '<option value="">Selecione uma propriedade</option>';
-    opponentSelect.innerHTML = '<option value="">Selecione um jogador</option>';
-    opponentPropertiesSelect.innerHTML = '<option value="">Selecione uma propriedade</option>';
-    
-    // Preencher propriedades do jogador atual
-    currentPlayer.properties.forEach(propId => {
-        const property = [...properties, ...railroads, ...utilities].find(p => p.id === propId);
-        if (property) {
-            const option = document.createElement('option');
-            option.value = propId;
-            option.textContent = property.name;
-            playerPropertiesSelect.appendChild(option);
-        }
-    });
-    
-    // Preencher lista de oponentes
-    gameState.players.forEach((player, index) => {
-        if (player !== currentPlayer) {
-            const option = document.createElement('option');
-            option.value = index;
-            option.textContent = player.name;
-            opponentSelect.appendChild(option);
-        }
-    });
-    
-    // Event listener para atualizar propriedades do oponente quando selecionado
-    opponentSelect.addEventListener('change', function() {
-        const selectedIndex = parseInt(this.value);
-        if (isNaN(selectedIndex)) return;
-        
-        const opponent = gameState.players[selectedIndex];
-        opponentPropertiesSelect.innerHTML = '<option value="">Selecione uma propriedade</option>';
-        
-        opponent.properties.forEach(propId => {
-            const property = [...properties, ...railroads, ...utilities].find(p => p.id === propId);
-            if (property) {
-                const option = document.createElement('option');
-                option.value = propId;
-                option.textContent = property.name;
-                opponentPropertiesSelect.appendChild(option);
+    try {
+        // Calcular aluguel baseado no tipo de propriedade
+        if (properties.find(p => p.id === property.id)) {
+            // Propriedade normal
+            const prop = properties.find(p => p.id === property.id);
+            // Verificar se o proprietário possui todas as propriedades do grupo
+            const group = prop.group;
+            const groupProperties = properties.filter(p => p.group === group);
+            const ownsAllInGroup = groupProperties.every(p => owner.properties.includes(p.id));
+            
+            // Aluguel base (sem casas)
+            rent = prop.rent[0];
+            
+            // Dobrar aluguel se possuir todas do grupo e não tiver casas
+            if (ownsAllInGroup) {
+                rent *= 2;
             }
-        });
+            
+            // Adicionar lógica para casas e hotéis aqui quando implementado
+        } else if (railroads.find(r => r.id === property.id)) {
+            // Ferrovia - aluguel baseado no número de ferrovias que o proprietário possui
+            const railroadCount = railroads.filter(r => owner.properties.includes(r.id)).length;
+            rent = 25000 * Math.pow(2, railroadCount - 1); // 25000, 50000, 100000, 200000
+        } else if (utilities.find(u => u.id === property.id)) {
+            // Companhia de serviços - aluguel baseado nos dados e no número de companhias
+            const utilityCount = utilities.filter(u => owner.properties.includes(u.id)).length;
+            const diceValue = parseInt(dice1Element.textContent) + parseInt(dice2Element.textContent);
+            rent = utilityCount === 1 ? diceValue * 4000 : diceValue * 10000;
+        }
+        
+        // Verificar se o jogador tem dinheiro suficiente
+        if (player.money < rent) {
+            alert(`${player.name} não tem dinheiro suficiente para pagar o aluguel de $${rent}!`);
+            // Implementar lógica de falência aqui
+            handleBankruptcy(player, owner, rent);
+        } else {
+            player.money -= rent;
+            owner.money += rent;
+            
+            // Criar efeito visual de transação
+            createMoneyEffect(player, owner, rent);
+            
+            alert(`${player.name} pagou $${rent} de aluguel para ${owner.name}.`);
+        }
+    } catch (error) {
+        console.error('Erro ao calcular aluguel:', error);
+    }
+    
+    // Atualizar UI
+    updatePlayersList();
+}
+
+// Função para lidar com falência
+function handleBankruptcy(player, creditor, debt) {
+    alert(`${player.name} está falido! Todas as propriedades serão transferidas para ${creditor.name}.`);
+    
+    // Transferir todo o dinheiro restante
+    creditor.money += player.money;
+    player.money = 0;
+    
+    // Transferir todas as propriedades
+    player.properties.forEach(propId => {
+        creditor.properties.push(propId);
     });
+    player.properties = [];
     
-    // Exibir modal
-    tradeModal.style.display = 'block';
+    // Remover jogador do jogo
+    const playerIndex = gameState.players.indexOf(player);
+    gameState.players.splice(playerIndex, 1);
+    
+    // Se o jogador atual foi removido, ajustar o índice
+    if (gameState.currentPlayerIndex >= playerIndex) {
+        gameState.currentPlayerIndex--;
+    }
+    
+    // Se só restar um jogador, ele é o vencedor
+    if (gameState.players.length === 1) {
+        alert(`${gameState.players[0].name} venceu o jogo!`);
+        gameState.gameStarted = false;
+    }
 }
 
-// Fechar modal de negociação
-function closeTradeModal() {
-    tradeModal.style.display = 'none';
-}
-
-// Propor negociação
-function proposeTrade() {
-    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    const playerPropertyId = document.getElementById('player-properties').value;
-    const playerMoney = parseInt(document.getElementById('player-money').value) || 0;
-    const opponentIndex = parseInt(document.getElementById('opponent-select').value);
-    const opponentPropertyId = document.getElementById('opponent-properties').value;
-    const opponentMoney = parseInt(document.getElementById('opponent-money').value) || 0;
+// Criar efeito visual de transação de dinheiro
+function createMoneyEffect(fromPlayer, toPlayer, amount) {
+    const moneyEffect = document.createElement('div');
+    moneyEffect.className = 'money-effect';
+    moneyEffect.textContent = `$${amount}`;
     
-    if (isNaN(opponentIndex)) {
-        alert('Selecione um oponente!');
-        return;
-    }
-    
-    if (!playerPropertyId && playerMoney <= 0) {
-        alert('Você precisa oferecer uma propriedade ou dinheiro!');
-        return;
-    }
-    
-    if (!opponentPropertyId && opponentMoney <= 0) {
-        alert('Você precisa pedir uma propriedade ou dinheiro!');
-        return;
-    }
-    
-    const opponent = gameState.players[opponentIndex];
-    
-    // Verificar se os jogadores têm dinheiro suficiente
-    if (playerMoney > currentPlayer.money) {
-        alert('Você não tem dinheiro suficiente para esta negociação!');
-        return;
-    }
-    
-    if (opponentMoney > opponent.money) {
-        alert(`${opponent.name} não tem dinheiro suficiente para esta negociação!`);
-        return;
-    }
-    
-    // Propor a negociação (simplificado - aceita automaticamente)
-    if (confirm(`${opponent.name}, você aceita esta negociação?`)) {
-        // Trocar propriedades
-        if (playerPropertyId) {
-            currentPlayer.properties = currentPlayer.properties.filter(id => id !== playerPropertyId);
-            opponent.properties.push(playerPropertyId);
-        }
+    // Posicionar o efeito próximo ao jogador que está pagando
+    const fromPiece = document.getElementById(`player-${gameState.players.indexOf(fromPlayer)}-piece`);
+    if (fromPiece) {
+        moneyEffect.style.left = fromPiece.style.left;
+        moneyEffect.style.top = fromPiece.style.top;
+        document.querySelector('.board').appendChild(moneyEffect);
         
-        if (opponentPropertyId) {
-            opponent.properties = opponent.properties.filter(id => id !== opponentPropertyId);
-            currentPlayer.properties.push(opponentPropertyId);
-        }
-        
-        // Trocar dinheiro
-        currentPlayer.money -= playerMoney;
-        currentPlayer.money += opponentMoney;
-        opponent.money += playerMoney;
-        opponent.money -= opponentMoney;
-        
-        alert('Negociação concluída com sucesso!');
-        
-        // Atualizar UI
-        updatePlayersList();
-        updateCurrentPlayerInfo();
-        closeTradeModal();
-    } else {
-        alert('Negociação recusada.');
+        // Remover o elemento após a animação
+        setTimeout(() => {
+            moneyEffect.remove();
+        }, 1500);
     }
 }
 
@@ -956,3 +815,64 @@ function endTurn() {
 
 // Inicializar o jogo
 document.addEventListener('DOMContentLoaded', init);
+
+// Modificar a função buyProperty para corrigir o problema de compra
+function buyProperty() {
+    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+    const currentPosition = currentPlayer.position;
+    
+    // Encontrar a propriedade pela posição, não pelo ID
+    const property = [...properties, ...railroads, ...utilities].find(p => p.position === currentPosition);
+    
+    if (!property) {
+        console.error("Propriedade não encontrada na posição:", currentPosition);
+        alert('Você não está em uma propriedade que pode ser comprada.');
+        return;
+    }
+    
+    const owner = findPropertyOwner(property);
+    if (owner) {
+        alert('Esta propriedade já tem dono!');
+        return;
+    }
+    
+    if (currentPlayer.money < property.price) {
+        alert('Você não tem dinheiro suficiente para comprar esta propriedade!');
+        return;
+    }
+    
+    // Comprar a propriedade
+    currentPlayer.money -= property.price;
+    currentPlayer.properties.push(property.id);
+    
+    // Efeito visual de compra
+    const propertyElement = document.getElementById(property.id);
+    if (propertyElement) {
+        propertyElement.classList.add('property-highlight');
+        propertyElement.style.borderColor = currentPlayer.color;
+        setTimeout(() => {
+            propertyElement.classList.remove('property-highlight');
+        }, 1000);
+    }
+    
+    alert(`${currentPlayer.name} comprou ${property.name} por $${property.price}!`);
+    
+    // Atualizar UI
+    updatePlayersList();
+    updateCurrentPlayerInfo();
+}
+
+// Modificar a função findPropertyOwner para melhorar a detecção de proprietário
+function findPropertyOwner(property) {
+    if (!property || !property.id) {
+        console.error("Propriedade inválida:", property);
+        return null;
+    }
+    
+    for (const player of gameState.players) {
+        if (player.properties && player.properties.includes(property.id)) {
+            return player;
+        }
+    }
+    return null;
+}
